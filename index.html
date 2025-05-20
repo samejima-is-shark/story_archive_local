@@ -21,7 +21,8 @@
         <div class="header-button">
           <button id="newStoryBtn"><i class="fa-solid fa-pen-to-square"></i><span> 新しい投稿</span></button>
           <button onclick="toggleSortOrder()" id="sortToggleBtn"><i class="fa-solid fa-arrow-down"></i><span> 新順</span></button>
-          <button onclick="toggleViewMode()" id="viewModeBtn"><i class="fa-solid fa-calendar-days"></i><span> 年表モード</span></button>      
+          <button onclick="toggleViewMode()" id="viewModeBtn"><i class="fa-solid fa-calendar-days"></i><span> 年表モード</span></button>     
+          <button onclick="exportJSON()">保存</button> 
         </div>
       </div>
     </header>
@@ -31,14 +32,6 @@
            <div class="tag-section">…</div>
            <div class="tag-section cp-tags">…</div>
            <div class="tag-section normal-tags">…</div> -->
-    </div>    
-
-    <div class="in-ex">
-      <button onclick="exportStories()"><i class="fa-solid fa-download"></i> エクスポート</button>
-      <label class="button-like" style="margin-left: 0.5rem;">
-        <i class="fa-solid fa-upload"></i> インポート
-        <input type="file" accept="application/json" onchange="importStories(event)" style="display: none;">
-      </label>
     </div>
 
     <section id="storyList"></section>
