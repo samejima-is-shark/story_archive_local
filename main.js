@@ -1,377 +1,297 @@
-const storyList = document.getElementById("storyList");
-const storyForm = document.getElementById("storyForm");
-const storyDetail = document.getElementById("storyDetail");
-const tagFilter = document.getElementById("tagFilter");
-const secretToggle = document.getElementById("secretToggle");
+body {
+  margin: 0;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+}
 
-let editingStoryId = null;
-let currentFilter = null;
-let showSecret = false;
-let sortOrder = "desc"; // 新しい順（デフォルト）
-let currentView = "list"; // "list" or "timeline"
+textarea,
+input,
+select,
+button,
+p {
+	font: inherit;
+}
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
 
-// --- イベント系 ---
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
 
-document.getElementById("newStoryBtn").addEventListener("click", () => {
-  storyForm.classList.remove("hidden");
-  storyDetail.classList.add("hidden");
-  storyList.classList.add("hidden");
-  editingStoryId = null;
-  document.getElementById("titleInput").value = "";
-  document.getElementById("contentInput").value = "";
-  document.getElementById("tagsInput").value = "";
-});
+button , .button-like{
+  background-color: #1f2937;
+  color: #e0e0e0;
+  border: none;
+  padding: 0.5rem 1rem;
+  /*margin-top: 1rem;*/
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: small;
+}
 
-document.getElementById("cancelBtn").addEventListener("click", () => {
-  storyForm.classList.add("hidden");
-  storyList.classList.remove("hidden");
-});
+.in-ex{
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
 
-document.getElementById("saveBtn").addEventListener("click", () => {
-  const title = document.getElementById("titleInput").value.trim();
-  const content = document.getElementById("contentInput").value.trim();
-  const tags = document.getElementById("tagsInput").value
-    .split(/[,\s]+/)
-    .map(t => t.trim())
-    .filter(Boolean);
+button:hover {
+  background-color: #374151;
+}
+.button-like:hover {
+  background-color: #374151;
+}
 
-  if (!title || !content) return alert("タイトルと本文は必須です");
+input, textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+}
 
-  let stories = JSON.parse(localStorage.getItem("stories") || "[]");
+textarea {
+  min-height: 150px;
+}
 
-  if (editingStoryId) {
-    const index = stories.findIndex(s => s.id === editingStoryId);
-    if (index !== -1) {
-      stories[index].title = title;
-      stories[index].content = content;
-      stories[index].tags = tags;
-    }
-  } else {
-    stories.unshift({
-      id: crypto.randomUUID(),
-      title,
-      content,
-      tags,
-      favorite: false,
-      createdAt: new Date().toISOString()
-    });
+i {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+}
+
+.story-card {
+  background: #1e1e1e;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+  padding-bottom: 2em;
+}
+
+.story-card:hover {
+  background: #292929;
+}
+
+.tag {
+  display: inline-block;
+  background: #374151;
+  color: #cbd5e1;
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.3rem;
+  border-radius: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.fav-icon {
+  font-size: 1.5em;
+  padding: 0.2em;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: all 0.4s ease;
+  display: inline-block;
+}
+  
+.fav-icon.active {
+  color: gold;
+  text-shadow:
+    0 0 4px rgba(255, 215, 0, 0.7),
+    0 0 8px rgba(255, 215, 0, 0.5),
+    0 0 12px rgba(255, 215, 0, 0.3);
+}
+  
+.fav-icon.active:hover {
+  text-shadow:
+    0 0 6px rgba(255, 215, 0, 0.9),
+    0 0 14px rgba(255, 215, 0, 0.6),
+    0 0 20px rgba(255, 215, 0, 0.4);
+  transform: scale(1.1);
+}  
+
+.tag-button {
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 0.3em 0.6em;
+  margin: 0 0.3em;
+  border-radius: 9999px;
+  background-color: #333;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.tag-button:hover {
+  background-color: #555;
+}
+
+#newStoryBtn{
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#tagFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag-filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  margin-bottom: 2em;
+}
+
+.tag-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.tag-group-title {
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.detail-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.detail-buttons button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+
+  .story-card {
+    background: #333;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
   }
 
-  localStorage.setItem("stories", JSON.stringify(stories));
-
-  editingStoryId = null;
-  storyForm.classList.add("hidden");
-  storyList.classList.remove("hidden");
-  renderStories(currentFilter);
-});
-
-// --- ストーリー描画系 ---
-
-function formatContent(content) {
-  const match = content.match(/^CP:(.+)/);
-  if (match) {
-    return `<strong>${match[1].replace(/\n/g, "<br>")}</strong>`;
-  }
-  return content.replace(/\n/g, "<br>");
-}
-
-function renderStories(filterTag = null) {
-  let stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  currentFilter = filterTag;
-
-  if (showSecret) {
-    stories = stories.filter(s => s.tags.includes("secret"));
-  } else {
-    stories = stories.filter(s => !s.tags.includes("secret"));
+  .story-card:hover {
+    transform: scale(1.01);
   }
 
-  if (filterTag === "#favorites") {
-    stories = stories.filter(s => s.favorite);
-  } else if (filterTag && filterTag !== "#favorites") {
-    stories = stories.filter(s => s.tags.includes(filterTag));
+  .story-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5em;
+    font-weight: bold;
   }
 
-  stories.sort((a, b) => {
-    const timeA = new Date(a.createdAt);
-    const timeB = new Date(b.createdAt);
-    return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
-  });
-
-  renderTagList(JSON.parse(localStorage.getItem("stories") || "[]"));
-
-  const sortBtn = document.getElementById("sortToggleBtn");
-  if (sortBtn) {
-    sortBtn.innerHTML = sortOrder === "desc" ? '<i class="fa-solid fa-arrow-down"></i><span> 新順</span>' : '<i class="fa-solid fa-arrow-up"></i><span> 古順</span>';
+  .story-card .tag {
+    font-size: 0.75rem;
+    background: #333;
+    padding: 0.2em 0.5em;
+    border-radius: 0.5em;
+    margin-right: 0.3em;
+    display: inline-block;
+    margin-top: 0.5em;
   }
 
-  storyList.innerHTML = "";
-
-  stories.forEach(story => {
-    const card = document.createElement("div");
-    card.className = "story-card";
-
-    const favIcon = story.favorite
-      ? '<i class="fa-solid fa-star"></i>'
-      : '<i class="fa-regular fa-star"></i>';
-
-    card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>${story.title}</h3>
-        <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
-      </div>
-      <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
-    `;
-
-    card.addEventListener("click", () => showDetail(story));
-    storyList.appendChild(card);
-  });
-}
-
-// --- タグリスト描画 ---
-function renderTagList(stories) {
-  const allTags = new Set();
-  stories.forEach(story => story.tags.forEach(tag => allTags.add(tag)));
-
-  tagFilter.innerHTML = `
-    <button onclick="renderStories()" class="tag-button">すべて表示</button>
-    <button onclick="renderStories('#favorites')" class="tag-button"><i class="fa-solid fa-star"></i> お気に入り</button>
-  `;
-
-  const cpTags = [...allTags].filter(tag => tag.startsWith("CP:")).sort();
-  const normalTags = [...allTags].filter(tag => !tag.startsWith("CP:") && tag !== "secret").sort();
-
-  if (cpTags.length > 0) {
-    const cpGroup = document.createElement("div");
-    cpGroup.innerHTML = `<div class="tag-group-title">CP</div>`;
-    cpTags.forEach(tag => {
-      const btn = document.createElement("button");
-      const cpName = tag.replace(/^CP:/, "");
-      btn.innerHTML = `<strong>#${cpName}</strong>`;
-      btn.className = "tag-button";
-      btn.onclick = () => renderStories(tag);
-      cpGroup.appendChild(btn);
-    });
-    tagFilter.appendChild(cpGroup);
+  .fav-icon {
+    font-size: 1.2rem;
+    color: #888;
+    cursor: pointer;
   }
 
-  if (normalTags.length > 0) {
-    const otherGroup = document.createElement("div");
-    otherGroup.innerHTML = `<div class="tag-group-title">タグ</div>`;
-    normalTags.forEach(tag => {
-      const btn = document.createElement("button");
-      btn.textContent = `#${tag}`;
-      btn.className = "tag-button";
-      btn.onclick = () => renderStories(tag);
-      otherGroup.appendChild(btn);
-    });
-    tagFilter.appendChild(otherGroup);
+  .fav-icon.active {
+    color: #f39c12;
   }
-}
-
-// --- 詳細表示 ---
-
-function showDetail(story) {
-  storyDetail.classList.remove("hidden");
-  storyList.classList.add("hidden");
-  storyForm.classList.add("hidden");
-
-  const favBtnLabel = story.favorite
-    ? '<i class="fa-solid fa-star"></i> お気に入り解除'
-    : '<i class="fa-regular fa-star"></i> お気に入り登録';
-
-  storyDetail.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h2>${story.title}</h2>
-      <button onclick="backToList()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
-    <p style="white-space: pre-wrap;">${formatContent(story.content)}</p>
-    <button onclick="toggleFavorite('${story.id}')">${favBtnLabel}</button>
-    <button onclick="editStory('${story.id}')"><i class="fa-solid fa-pencil"></i> 編集</button>
-    <button onclick="deleteStory('${story.id}')"><i class="fa-solid fa-trash"></i> 削除</button>
-    <button onclick="backToList()"><i class="fa-solid fa-arrow-left"></i> 戻る</button>
-  `;
-}
-
-function backToList() {
-  storyDetail.classList.add("hidden");
-  storyList.classList.remove("hidden");
-  if (currentView === "list") {
-    renderStories(currentFilter);
-  } else {
-    renderTimelineView(currentFilter);
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
   }
-}
 
-// --- 編集・削除・お気に入り ---
-
-function toggleFavorite(id) {
-  const stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  const idx = stories.findIndex(s => s.id === id);
-  if (idx !== -1) {
-    stories[idx].favorite = !stories[idx].favorite;
-    localStorage.setItem("stories", JSON.stringify(stories));
-    showDetail(stories[idx]);
+  header h1 {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.2;
   }
-}
 
-function deleteStory(id) {
-  if (!confirm("このストーリーを削除しますか？")) return;
-  let stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  stories = stories.filter(story => story.id !== id);
-  localStorage.setItem("stories", JSON.stringify(stories));
-  backToList();
-}
-
-function editStory(id) {
-  const stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  const story = stories.find(s => s.id === id);
-  if (!story) return;
-
-  editingStoryId = story.id;
-  document.getElementById("titleInput").value = story.title;
-  document.getElementById("contentInput").value = story.content;
-  document.getElementById("tagsInput").value = story.tags.join(", ");
-
-  storyDetail.classList.add("hidden");
-  storyForm.classList.remove("hidden");
-}
-
-// --- シークレット切替 ---
-
-secretToggle.addEventListener("click", () => {
-  showSecret = !showSecret;
-  secretToggle.innerHTML = showSecret
-    ? '<i class="fa-solid fa-book"></i>'
-    : '<i class="fa-solid fa-book-open"></i>';
-  if (currentView === "list") {
-    renderStories(currentFilter);
-  } else {
-    renderTimelineView(currentFilter);
+  div.header-button-flex{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
   }
-});
 
-// --- ソート切替 ---
-
-function toggleSortOrder() {
-  sortOrder = (sortOrder === "desc") ? "asc" : "desc";
-  if (currentView === "list") {
-    renderStories(currentFilter);
-  } else {
-    renderTimelineView(currentFilter);
+  div.header-button{
+    display: flex;
   }
-}
 
-// --- 年月日グループの年表表示 ---
-
-function renderTimelineView(filterTag = null) {
-  const stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  const groupedByDate = {};
-
-  stories.forEach(story => {
-    if (showSecret) {
-      if (!story.tags.includes("secret")) return;
-    } else {
-      if (story.tags.includes("secret")) return;
-    }
-
-    if (filterTag && !story.tags.includes(filterTag)) return;
-
-    const dateKey = new Date(story.createdAt).toISOString().slice(0, 10);
-    if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
-    groupedByDate[dateKey].push(story);
-  });
-
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) => {
-    return sortOrder === "desc" ? b.localeCompare(a) : a.localeCompare(b);
-  });
-
-  storyList.innerHTML = "";
-  storyList.classList.remove("hidden");
-  storyDetail.classList.add("hidden");
-  storyForm.classList.add("hidden");
-
-  sortedDates.forEach(date => {
-    const section = document.createElement("section");
-    section.innerHTML = `<h2 style="margin-top: 2rem;"><i class="fa-solid fa-calendar-days"></i> ${date}</h2>`;
-
-    groupedByDate[date].sort((a, b) => {
-      const timeA = new Date(a.createdAt);
-      const timeB = new Date(b.createdAt);
-      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
-    });
-
-    groupedByDate[date].forEach(story => {
-      const card = document.createElement("div");
-      card.className = "story-card";
-
-      const favIcon = story.favorite
-        ? '<i class="fa-solid fa-star"></i>'
-        : '<i class="fa-regular fa-star"></i>';
-
-      card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3>${story.title}</h3>
-          <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
-        </div>
-        <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
-      `;
-
-      card.addEventListener("click", () => showDetail(story));
-      section.appendChild(card);
-    });
-
-    storyList.appendChild(section);
-  });
-}
-
-// --- ビュー切替 ---
-
-function toggleViewMode() {
-  currentView = (currentView === "list") ? "timeline" : "list";
-  const viewBtn = document.getElementById("viewModeBtn");
-  viewBtn.innerHTML = currentView === "list" ? '<i class="fa-solid fa-calendar-days"></i><span> 年表モード</span>' : '<i class="fa-solid fa-list"></i><span> 通常モード</span>';
-
-  if (currentView === "list") {
-    renderStories(currentFilter);
-  } else {
-    renderTimelineView(currentFilter);
+  header button {
+    font-size: 0.9rem;
+    padding: 0 0.6rem;
+    border-radius: 6px;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.5em;
+    margin-top: 0;
   }
+
+  header button i {
+    font-size: 1.2rem;
+    margin-right: 0;
+  }
+
+  /* ボタン内のテキストをspanで分ける前提 */
+  header button span {
+    display: none; /* スマホではテキストだけ非表示 */
+  }
+
+  #viewModeBtn,
+  #sortToggleBtn {
+    width: 100%;
+  }
+
+  #viewModeBtn,
+  #sortToggleBtn {
+    width: auto;
+    padding: 0.5rem;
+  }
+
+  #viewModeBtn::after,
+  #sortToggleBtn::after {
+    content: '';
+    display: none; /* テキストを消す */
+  }
+
+  h2{
+    font-size: 1.2rem;
+  }
+
+  input, textarea{
+    padding: 0;
+  }
+
 }
-
-function exportStories() {
-  const stories = JSON.parse(localStorage.getItem("stories") || "[]");
-  const blob = new Blob([JSON.stringify(stories, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "my_stories_backup.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function importStories(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const imported = JSON.parse(e.target.result);
-      if (!Array.isArray(imported)) throw new Error("形式が違います");
-      const existing = JSON.parse(localStorage.getItem("stories") || "[]");
-      localStorage.setItem("stories", JSON.stringify([...imported, ...existing]));
-      alert("インポート完了！");
-      renderStories();
-    } catch (err) {
-      alert("読み込みに失敗しました：" + err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-
-renderStories();
