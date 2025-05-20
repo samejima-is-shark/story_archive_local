@@ -169,7 +169,16 @@ i {
   margin-bottom: 0.5em;
 }
 
-
+.detail-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.detail-buttons button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
 
 @media (max-width: 768px) {
 
