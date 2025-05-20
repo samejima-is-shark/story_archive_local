@@ -1,297 +1,367 @@
-body {
-  margin: 0;
-  font-family: 'Zen Kaku Gothic New', sans-serif;
-  background-color: #121212;
-  color: #e0e0e0;
-}
+const storyList = document.getElementById("storyList");
+const storyForm = document.getElementById("storyForm");
+const storyDetail = document.getElementById("storyDetail");
+const tagFilter = document.getElementById("tagFilter");
+const secretToggle = document.getElementById("secretToggle");
 
-textarea,
-input,
-select,
-button,
-p {
-	font: inherit;
-}
-.container {
-  max-width: 700px;
-  margin: 2rem auto;
-  padding: 1rem;
-}
+let stories = []; // ← ここが主役
+let editingStoryId = null;
+let currentFilter = null;
+let showSecret = false;
+let sortOrder = "desc";
+let currentView = "list";
+let lastScrollY = 0;
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
+// --- 初期ロード ---
+window.addEventListener("DOMContentLoaded", () => {
+  fetch("stories.json")
+    .then(res => res.json())
+    .then(data => {
+      stories = data;
+      renderStories();
+    })
+    .catch(err => {
+      console.error("読み込み失敗:", err);
+      stories = [];
+      renderStories();
+    });
+});
 
-button , .button-like{
-  background-color: #1f2937;
-  color: #e0e0e0;
-  border: none;
-  padding: 0.5rem 1rem;
-  /*margin-top: 1rem;*/
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: small;
-}
+// --- 新規・編集 ---
+document.getElementById("newStoryBtn").addEventListener("click", () => {
+  storyForm.classList.remove("hidden");
+  storyDetail.classList.add("hidden");
+  storyList.classList.add("hidden");
+  editingStoryId = null;
+  document.getElementById("titleInput").value = "";
+  document.getElementById("contentInput").value = "";
+  document.getElementById("tagsInput").value = "";
+});
 
-.in-ex{
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
+document.getElementById("cancelBtn").addEventListener("click", () => {
+  storyForm.classList.add("hidden");
+  storyList.classList.remove("hidden");
+});
 
-button:hover {
-  background-color: #374151;
-}
-.button-like:hover {
-  background-color: #374151;
-}
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const title = document.getElementById("titleInput").value.trim();
+  const content = document.getElementById("contentInput").value.trim();
+  const tags = document.getElementById("tagsInput").value
+    .split(/[,\s]+/)
+    .map(t => t.trim())
+    .filter(Boolean);
 
-input, textarea {
-  display: block;
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: #2d2d2d;
-  color: #e0e0e0;
-  border: 1px solid #444;
-  border-radius: 0.5rem;
-}
+  if (!title || !content) return alert("タイトルと本文は必須です");
 
-textarea {
-  min-height: 150px;
-}
-
-i {
-  display: inline-block;
-  width: 1.2em;
-  text-align: center;
-}
-
-.story-card {
-  background: #1e1e1e;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  transition: 0.2s;
-  padding-bottom: 2em;
-}
-
-.story-card:hover {
-  background: #292929;
-}
-
-.tag {
-  display: inline-block;
-  background: #374151;
-  color: #cbd5e1;
-  padding: 0.2rem 0.5rem;
-  margin-right: 0.3rem;
-  border-radius: 0.3rem;
-  font-size: 0.8rem;
-}
-
-.hidden {
-  display: none;
-}
-
-.fav-icon {
-  font-size: 1.5em;
-  padding: 0.2em;
-  border-radius: 50%;
-  background-color: transparent;
-  transition: all 0.4s ease;
-  display: inline-block;
-}
-  
-.fav-icon.active {
-  color: gold;
-  text-shadow:
-    0 0 4px rgba(255, 215, 0, 0.7),
-    0 0 8px rgba(255, 215, 0, 0.5),
-    0 0 12px rgba(255, 215, 0, 0.3);
-}
-  
-.fav-icon.active:hover {
-  text-shadow:
-    0 0 6px rgba(255, 215, 0, 0.9),
-    0 0 14px rgba(255, 215, 0, 0.6),
-    0 0 20px rgba(255, 215, 0, 0.4);
-  transform: scale(1.1);
-}  
-
-.tag-button {
-  font-family: 'Noto Sans JP', sans-serif;
-  padding: 0.3em 0.6em;
-  margin: 0 0.3em;
-  border-radius: 9999px;
-  background-color: #333;
-  color: #e0e0e0;
-  font-size: 0.9rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.tag-button:hover {
-  background-color: #555;
-}
-
-#newStoryBtn{
-  font-family: 'Noto Sans JP', sans-serif;
-}
-
-#tagFilter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.tag-filter-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5em;
-  margin-bottom: 2em;
-}
-
-.tag-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  align-items: center;
-}
-
-.tag-group-title {
-  font-weight: bold;
-  margin-bottom: 0.5em;
-}
-
-.detail-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-.detail-buttons button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-}
-
-@media (max-width: 768px) {
-
-  .story-card {
-    background: #333;
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
+  if (editingStoryId) {
+    const index = stories.findIndex(s => s.id === editingStoryId);
+    if (index !== -1) {
+      stories[index].title = title;
+      stories[index].content = content;
+      stories[index].tags = tags;
+    }
+  } else {
+    stories.unshift({
+      id: crypto.randomUUID(),
+      title,
+      content,
+      tags,
+      favorite: false,
+      createdAt: new Date().toISOString()
+    });
   }
 
-  .story-card:hover {
-    transform: scale(1.01);
+  editingStoryId = null;
+  storyForm.classList.add("hidden");
+  storyList.classList.remove("hidden");
+  renderStories(currentFilter);
+});
+
+// --- 描画関連 ---
+function formatContent(content) {
+  const match = content.match(/^CP:(.+)/);
+  if (match) {
+    return `<strong>${match[1].replace(/\n/g, "<br>")}</strong>`;
+  }
+  return content.replace(/\n/g, "<br>");
+}
+
+function renderStories(filterTag = null) {
+  currentFilter = filterTag;
+  let filtered = [...stories];
+
+  if (showSecret) {
+    filtered = filtered.filter(s => s.tags.includes("secret"));
+  } else {
+    filtered = filtered.filter(s => !s.tags.includes("secret"));
   }
 
-  .story-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5em;
-    font-weight: bold;
+  if (filterTag === "#favorites") {
+    filtered = filtered.filter(s => s.favorite);
+  } else if (filterTag && filterTag !== "#favorites") {
+    filtered = filtered.filter(s => s.tags.includes(filterTag));
   }
 
-  .story-card .tag {
-    font-size: 0.75rem;
-    background: #333;
-    padding: 0.2em 0.5em;
-    border-radius: 0.5em;
-    margin-right: 0.3em;
-    display: inline-block;
-    margin-top: 0.5em;
+  filtered.sort((a, b) => {
+    const timeA = new Date(a.createdAt);
+    const timeB = new Date(b.createdAt);
+    return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+  });
+
+  renderTagList(stories);
+
+  const sortBtn = document.getElementById("sortToggleBtn");
+  if (sortBtn) {
+    sortBtn.innerHTML = sortOrder === "desc"
+      ? '<i class="fa-solid fa-arrow-down"></i><span> 新順</span>'
+      : '<i class="fa-solid fa-arrow-up"></i><span> 古順</span>';
   }
 
-  .fav-icon {
-    font-size: 1.2rem;
-    color: #888;
-    cursor: pointer;
+  storyList.innerHTML = "";
+
+  filtered.forEach((story, index) => {
+    const card = document.createElement("div");
+    card.className = "story-card";
+
+    const favIcon = story.favorite
+      ? '<i class="fa-solid fa-star"></i>'
+      : '<i class="fa-regular fa-star"></i>';
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>${story.title}</h3>
+        <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
+      </div>
+      <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
+    `;
+
+    card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
+    storyList.appendChild(card);
+  });
+}
+
+function renderTagList(storyData) {
+  const allTags = new Set();
+  storyData.forEach(story => story.tags.forEach(tag => allTags.add(tag)));
+
+  tagFilter.innerHTML = `
+    <button onclick="renderStories()" class="tag-button">すべて表示</button>
+    <button onclick="renderStories('#favorites')" class="tag-button"><i class="fa-solid fa-star"></i> お気に入り</button>
+  `;
+
+  const cpTags = [...allTags].filter(tag => tag.startsWith("CP:")).sort();
+  const normalTags = [...allTags].filter(tag => !tag.startsWith("CP:") && tag !== "secret").sort();
+
+  if (cpTags.length > 0) {
+    const cpGroup = document.createElement("div");
+    cpGroup.innerHTML = `<div class="tag-group-title">CP</div>`;
+    cpTags.forEach(tag => {
+      const btn = document.createElement("button");
+      const cpName = tag.replace(/^CP:/, "");
+      btn.innerHTML = `<strong>#${cpName}</strong>`;
+      btn.className = "tag-button";
+      btn.onclick = () => renderStories(tag);
+      cpGroup.appendChild(btn);
+    });
+    tagFilter.appendChild(cpGroup);
   }
 
-  .fav-icon.active {
-    color: #f39c12;
+  if (normalTags.length > 0) {
+    const otherGroup = document.createElement("div");
+    otherGroup.innerHTML = `<div class="tag-group-title">タグ</div>`;
+    normalTags.forEach(tag => {
+      const btn = document.createElement("button");
+      btn.textContent = `#${tag}`;
+      btn.className = "tag-button";
+      btn.onclick = () => renderStories(tag);
+      otherGroup.appendChild(btn);
+    });
+    tagFilter.appendChild(otherGroup);
   }
-  header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0 1rem;
-    margin-bottom: 1rem;
+}
+
+function showDetail(story, index) {
+  storyList.classList.add("hidden");
+  storyDetail.classList.remove("hidden");
+  storyForm.classList.add("hidden");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  storyDetail.innerHTML = `
+    <h2>${story.title}</h2>
+    <p>${story.content.replace(/\n/g, "<br>")}</p>
+    <div class="tags">${story.tags.map(tag => `<span class="tag">${tag}</span>`).join(" ")}</div>
+    <div class="detail-buttons">
+      ${index > 0 ? '<button id="prevStoryBtn"><i class="fa-solid fa-chevron-left"></i> 前へ</button>' : ''}
+      <button id="closeDetailBtn"><i class="fa-solid fa-xmark"></i> 閉じる</button>
+      ${index < stories.length - 1 ? '<button id="nextStoryBtn">次へ <i class="fa-solid fa-chevron-right"></i></button>' : ''}
+    </div>
+  `;
+
+  document.getElementById("closeDetailBtn").addEventListener("click", () => {
+    storyDetail.classList.add("hidden");
+    storyList.classList.remove("hidden");
+    window.scrollTo({ top: lastScrollY, behavior: "auto" });
+  });
+
+  if (index > 0) {
+    document.getElementById("prevStoryBtn").addEventListener("click", () => {
+      showDetail(stories[index - 1], index - 1);
+    });
   }
 
-  header h1 {
-    font-size: 1.4rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    line-height: 1.2;
-  }
+if (index < stories.length - 1) {
+  document.getElementById("nextStoryBtn").addEventListener("click", () => {
+    // 一度非表示にしてから次を表示 → スクロールが効くように
+    storyDetail.classList.add("hidden");
+    setTimeout(() => {
+      showDetail(stories[index + 1], index + 1);
+    }, 0);
+  });
+}
+}
 
-  div.header-button-flex{
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-  }
 
-  div.header-button{
-    display: flex;
+function backToList() {
+  storyDetail.classList.add("hidden");
+  storyList.classList.remove("hidden");
+  if (currentView === "list") {
+    renderStories(currentFilter);
+  } else {
+    renderTimelineView(currentFilter);
   }
+  window.scrollTo(0, lastScrollY); // ← スクロール位置を元に戻す
+}
 
-  header button {
-    font-size: 0.9rem;
-    padding: 0 0.6rem;
-    border-radius: 6px;
-    background-color: #333;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-left: 0.5em;
-    margin-top: 0;
+function toggleFavorite(id) {
+  const idx = stories.findIndex(s => s.id === id);
+  if (idx !== -1) {
+    stories[idx].favorite = !stories[idx].favorite;
+    showDetail(stories[idx]);
   }
+}
 
-  header button i {
-    font-size: 1.2rem;
-    margin-right: 0;
+function deleteStory(id) {
+  if (!confirm("このストーリーを削除しますか？")) return;
+  stories = stories.filter(story => story.id !== id);
+  backToList();
+}
+
+function editStory(id) {
+  const story = stories.find(s => s.id === id);
+  if (!story) return;
+
+  editingStoryId = story.id;
+  document.getElementById("titleInput").value = story.title;
+  document.getElementById("contentInput").value = story.content;
+  document.getElementById("tagsInput").value = story.tags.join(", ");
+
+  storyDetail.classList.add("hidden");
+  storyForm.classList.remove("hidden");
+}
+
+// --- シークレット切替 ---
+secretToggle.addEventListener("click", () => {
+  showSecret = !showSecret;
+  secretToggle.innerHTML = showSecret
+    ? '<i class="fa-solid fa-book"></i>'
+    : '<i class="fa-solid fa-book-open"></i>';
+  if (currentView === "list") {
+    renderStories(currentFilter);
+  } else {
+    renderTimelineView(currentFilter);
   }
+});
 
-  /* ボタン内のテキストをspanで分ける前提 */
-  header button span {
-    display: none; /* スマホではテキストだけ非表示 */
+// --- ソート切替 ---
+function toggleSortOrder() {
+  sortOrder = (sortOrder === "desc") ? "asc" : "desc";
+  if (currentView === "list") {
+    renderStories(currentFilter);
+  } else {
+    renderTimelineView(currentFilter);
   }
+}
 
-  #viewModeBtn,
-  #sortToggleBtn {
-    width: 100%;
+// --- 年表表示 ---
+function renderTimelineView(filterTag = null) {
+  const grouped = {};
+
+  stories.forEach((story, index) => {
+    if (showSecret && !story.tags.includes("secret")) return;
+    if (!showSecret && story.tags.includes("secret")) return;
+    if (filterTag && filterTag !== "#favorites" && !story.tags.includes(filterTag)) return;
+    if (filterTag === "#favorites" && !story.favorite) return;
+
+    const dateKey = new Date(story.createdAt).toISOString().slice(0, 10);
+    if (!grouped[dateKey]) grouped[dateKey] = [];
+    grouped[dateKey].push({ story, index }); // ← indexも一緒に保存
+  });
+
+  const sortedDates = Object.keys(grouped).sort((a, b) => {
+    return sortOrder === "desc" ? b.localeCompare(a) : a.localeCompare(b);
+  });
+
+  storyList.innerHTML = "";
+  storyList.classList.remove("hidden");
+  storyDetail.classList.add("hidden");
+  storyForm.classList.add("hidden");
+
+  sortedDates.forEach(date => {
+    const section = document.createElement("section");
+    section.innerHTML = `<h2 style="margin-top: 2rem;"><i class="fa-solid fa-calendar-days"></i> ${date}</h2>`;
+
+    grouped[date].sort((a, b) => {
+      const timeA = new Date(a.story.createdAt);
+      const timeB = new Date(b.story.createdAt);
+      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+    });
+
+    grouped[date].forEach(({ story, index }) => {
+      const card = document.createElement("div");
+      card.className = "story-card";
+
+      const favIcon = story.favorite
+        ? '<i class="fa-solid fa-star"></i>'
+        : '<i class="fa-regular fa-star"></i>';
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>${story.title}</h3>
+          <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
+        </div>
+        <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
+      `;
+
+      card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
+      section.appendChild(card);
+    });
+
+    storyList.appendChild(section);
+  });
+}
+
+// --- ビュー切替 ---
+function toggleViewMode() {
+  currentView = (currentView === "list") ? "timeline" : "list";
+  const viewBtn = document.getElementById("viewModeBtn");
+  viewBtn.innerHTML = currentView === "list"
+    ? '<i class="fa-solid fa-calendar-days"></i><span> 年表モード</span>'
+    : '<i class="fa-solid fa-list"></i><span> 通常モード</span>';
+
+  if (currentView === "list") {
+    renderStories(currentFilter);
+  } else {
+    renderTimelineView(currentFilter);
   }
+}
 
-  #viewModeBtn,
-  #sortToggleBtn {
-    width: auto;
-    padding: 0.5rem;
-  }
-
-  #viewModeBtn::after,
-  #sortToggleBtn::after {
-    content: '';
-    display: none; /* テキストを消す */
-  }
-
-  h2{
-    font-size: 1.2rem;
-  }
-
-  input, textarea{
-    padding: 0;
-  }
-
+// --- JSONエクスポート機能 ---
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(stories, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "stories.json";
+  a.click();
 }
