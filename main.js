@@ -139,7 +139,11 @@ function renderStories(filterTag = null) {
       <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
     `;
 
-    card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
+    card.addEventListener("click", () => {
+      lastScrollY = window.scrollY;
+      showDetail(story, index);
+    });
+
     storyList.appendChild(card);
   });
 }
@@ -336,7 +340,11 @@ function renderTimelineView(filterTag = null) {
         <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
       `;
 
-      card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
+      card.addEventListener("click", () => {
+        lastScrollY = window.scrollY;
+        showDetail(story, index);
+      });
+
       section.appendChild(card);
     });
 
