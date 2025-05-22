@@ -119,67 +119,25 @@ function renderStories(filterTag = null) {
 
   storyList.innerHTML = "";
 
-filtered.forEach((story, index) => {
-  const card = document.createElement("div");
-  card.className = "story-card";
+  filtered.forEach((story, index) => {
+    const card = document.createElement("div");
+    card.className = "story-card";
 
-  // タイトル＋ボタン行
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
+    const favIcon = story.favorite
+      ? '<i class="fa-solid fa-star"></i>'
+      : '<i class="fa-regular fa-star"></i>';
 
-  const title = document.createElement("h3");
-  title.textContent = story.title;
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>${story.title}</h3>
+        <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
+      </div>
+      <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
+    `;
 
-  // ✅ 「お気に入り登録／解除」ボタン
-  const favButton = document.createElement("button");
-  favButton.className = "fav-toggle-button";
-  favButton.textContent = story.favorite ? "お気に入り解除" : "お気に入り登録";
-
-  favButton.addEventListener("click", (e) => {
-    e.stopPropagation(); // カードクリック無効化（詳細を開かない）
-    story.favorite = !story.favorite;
-    favButton.textContent = story.favorite ? "お気に入り解除" : "お気に入り登録";
-    // 👇ここで必要なら保存処理を追加
-    // saveStories(); ← stories配列使ってたらこの関数用意して
+    card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
+    storyList.appendChild(card);
   });
-
-  header.appendChild(title);
-  header.appendChild(favButton);
-
-  // タグ表示
-  const tagContainer = document.createElement("div");
-  tagContainer.innerHTML = story.tags
-    .map(tag => `<span class="tag">${tag}</span>`)
-    .join("");
-
-  card.appendChild(header);
-  card.appendChild(tagContainer);
-
-  // 📖 詳細表示クリック（タイトルなど以外の部分クリック）
-  card.addEventListener("click", () => showDetail(story, index));
-
-  storyList.appendChild(card);
-});
-
-  header.appendChild(title);
-  header.appendChild(favIconEl);
-
-  const tagContainer = document.createElement("div");
-  tagContainer.innerHTML = story.tags
-    .map(tag => `<span class="tag">${tag}</span>`)
-    .join("");
-
-  card.appendChild(header);
-  card.appendChild(tagContainer);
-
-  // 📖 詳細を見るクリック
-  card.addEventListener("click", () => showDetail(story, index));
-
-  storyList.appendChild(card);
-});
-
 }
 
 function renderTagList(storyData) {
