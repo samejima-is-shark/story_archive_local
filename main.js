@@ -123,6 +123,7 @@ filtered.forEach((story, index) => {
   const card = document.createElement("div");
   card.className = "story-card";
 
+  // タイトル＋ボタン行
   const header = document.createElement("div");
   header.style.display = "flex";
   header.style.justifyContent = "space-between";
@@ -131,22 +132,36 @@ filtered.forEach((story, index) => {
   const title = document.createElement("h3");
   title.textContent = story.title;
 
-  const favIconEl = document.createElement("span");
-  favIconEl.className = "fav-icon";
-  favIconEl.innerHTML = story.favorite
-    ? '<i class="fa-solid fa-star"></i>'
-    : '<i class="fa-regular fa-star"></i>';
-  if (story.favorite) favIconEl.classList.add("active");
+  // ✅ 「お気に入り登録／解除」ボタン
+  const favButton = document.createElement("button");
+  favButton.className = "fav-toggle-button";
+  favButton.textContent = story.favorite ? "お気に入り解除" : "お気に入り登録";
 
-  // ⭐ お気に入りボタン処理
-  favIconEl.addEventListener("click", (e) => {
-    e.stopPropagation(); // 詳細を開かないように止める
+  favButton.addEventListener("click", (e) => {
+    e.stopPropagation(); // カードクリック無効化（詳細を開かない）
     story.favorite = !story.favorite;
-    favIconEl.innerHTML = story.favorite
-      ? '<i class="fa-solid fa-star"></i>'
-      : '<i class="fa-regular fa-star"></i>';
-    favIconEl.classList.toggle("active", story.favorite);
+    favButton.textContent = story.favorite ? "お気に入り解除" : "お気に入り登録";
+    // 👇ここで必要なら保存処理を追加
+    // saveStories(); ← stories配列使ってたらこの関数用意して
   });
+
+  header.appendChild(title);
+  header.appendChild(favButton);
+
+  // タグ表示
+  const tagContainer = document.createElement("div");
+  tagContainer.innerHTML = story.tags
+    .map(tag => `<span class="tag">${tag}</span>`)
+    .join("");
+
+  card.appendChild(header);
+  card.appendChild(tagContainer);
+
+  // 📖 詳細表示クリック（タイトルなど以外の部分クリック）
+  card.addEventListener("click", () => showDetail(story, index));
+
+  storyList.appendChild(card);
+});
 
   header.appendChild(title);
   header.appendChild(favIconEl);
