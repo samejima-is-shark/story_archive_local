@@ -40,10 +40,18 @@
       <h2><i class="fa-solid fa-pen-nib"></i> 新しいストーリー</h2>
       <input type="text" id="titleInput" placeholder="タイトル" />
       <textarea id="contentInput" placeholder="本文"></textarea>
-      <input type="text" id="tagsInput" list="CPname" placeholder="タグ（スペース区切り）" />
+      <input type="text" id="tagsInput1" list="CPname" placeholder="CPタグ" />
       <datalist id="CPname">
         <option value="CP:ジニアオ">
         <option value="CP:刻由">
+      </datalist>
+      <input type="text" id="tagsInput2" list="genre" placeholder="タグ（スペース区切り）" />
+      <datalist id="genre">
+        <option value="secret">
+        <option value="責任">
+        <option value="睡眠">
+        <option value="首輪">
+        <option value="限界">
       </datalist>
       <button id="saveBtn">保存</button>
       <button id="cancelBtn">キャンセル</button>
