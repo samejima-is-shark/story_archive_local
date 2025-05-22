@@ -51,7 +51,7 @@ document.getElementById("saveBtn").addEventListener("click", () => {
   const tags3 = document.getElementById("tagsInput3").value;
 
   // 2つのタグ欄の内容を結合して、配列化・空要素除去
-  const tags = [...tags1.split(/[,\s]+/), ...tags2.split(/[,\s]+/)]
+  const tags = [...tags1.split(/[,\s]+/), ...tags2.split(/[,\s]+/), ...tags3.split(/[,\s]+/)]
     .map(t => t.trim())
     .filter(Boolean);
 
