@@ -135,6 +135,20 @@ function renderStories(filterTag = null) {
       <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
     `;
 
+      // ⭐ お気に入りボタンの処理
+  const favIconEl = card.querySelector(".fav-icon");
+  favIconEl.addEventListener("click", (e) => {
+    e.stopPropagation(); // 詳細が開かないように！
+    story.favorite = !story.favorite;
+
+    // アイコンの見た目を更新
+    favIconEl.innerHTML = story.favorite
+      ? '<i class="fa-solid fa-star"></i>'
+      : '<i class="fa-regular fa-star"></i>';
+
+    favIconEl.classList.toggle("active", story.favorite);
+  });
+
     card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
     storyList.appendChild(card);
   });
@@ -220,7 +234,6 @@ if (index < stories.length - 1) {
   });
 }
 }
-
 
 function backToList() {
   storyDetail.classList.add("hidden");
