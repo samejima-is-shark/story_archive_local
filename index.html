@@ -40,7 +40,11 @@
       <h2><i class="fa-solid fa-pen-nib"></i> 新しいストーリー</h2>
       <input type="text" id="titleInput" placeholder="タイトル" />
       <textarea id="contentInput" placeholder="本文"></textarea>
-      <input type="text" id="tagsInput" placeholder="タグ（スペース区切り）" />
+      <input type="text" id="tagsInput" list="CPname" placeholder="タグ（スペース区切り）" />
+      <datalist id="tagsInput">
+        <option value="CP:ジニアオ">
+        <option value="CP:刻由">
+      </datalist>
       <button id="saveBtn">保存</button>
       <button id="cancelBtn">キャンセル</button>
     </section>
