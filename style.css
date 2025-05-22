@@ -180,10 +180,6 @@ i {
   font-size: 1rem;
 }
 
-.story_save{
-  margin-top: 0.5rem;
-}
-
 @media (max-width: 768px) {
 
   .story-card {
