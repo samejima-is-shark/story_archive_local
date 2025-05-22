@@ -46,8 +46,11 @@ document.getElementById("cancelBtn").addEventListener("click", () => {
 document.getElementById("saveBtn").addEventListener("click", () => {
   const title = document.getElementById("titleInput").value.trim();
   const content = document.getElementById("contentInput").value.trim();
-  const tags = document.getElementById("tagsInput").value
-    .split(/[,\s]+/)
+  const tags1 = document.getElementById("tagsInput1").value;
+  const tags2 = document.getElementById("tagsInput2").value;
+
+  // 2つのタグ欄の内容を結合して、配列化・空要素除去
+  const tags = [...tags1.split(/[,\s]+/), ...tags2.split(/[,\s]+/)]
     .map(t => t.trim())
     .filter(Boolean);
 
