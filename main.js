@@ -119,39 +119,52 @@ function renderStories(filterTag = null) {
 
   storyList.innerHTML = "";
 
-  filtered.forEach((story, index) => {
-    const card = document.createElement("div");
-    card.className = "story-card";
+filtered.forEach((story, index) => {
+  const card = document.createElement("div");
+  card.className = "story-card";
 
-    const favIcon = story.favorite
-      ? '<i class="fa-solid fa-star"></i>'
-      : '<i class="fa-regular fa-star"></i>';
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
 
-    card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>${story.title}</h3>
-        <span class="fav-icon ${story.favorite ? 'active' : ''}">${favIcon}</span>
-      </div>
-      <div>${story.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
-    `;
+  const title = document.createElement("h3");
+  title.textContent = story.title;
 
-      // ⭐ お気に入りボタンの処理
-  const favIconEl = card.querySelector(".fav-icon");
+  const favIconEl = document.createElement("span");
+  favIconEl.className = "fav-icon";
+  favIconEl.innerHTML = story.favorite
+    ? '<i class="fa-solid fa-star"></i>'
+    : '<i class="fa-regular fa-star"></i>';
+  if (story.favorite) favIconEl.classList.add("active");
+
+  // ⭐ お気に入りボタン処理
   favIconEl.addEventListener("click", (e) => {
-    e.stopPropagation(); // 詳細が開かないように！
+    e.stopPropagation(); // 詳細を開かないように止める
     story.favorite = !story.favorite;
-
-    // アイコンの見た目を更新
     favIconEl.innerHTML = story.favorite
       ? '<i class="fa-solid fa-star"></i>'
       : '<i class="fa-regular fa-star"></i>';
-
     favIconEl.classList.toggle("active", story.favorite);
   });
 
-    card.addEventListener("click", () => showDetail(story, index)); // ← index渡す！
-    storyList.appendChild(card);
-  });
+  header.appendChild(title);
+  header.appendChild(favIconEl);
+
+  const tagContainer = document.createElement("div");
+  tagContainer.innerHTML = story.tags
+    .map(tag => `<span class="tag">${tag}</span>`)
+    .join("");
+
+  card.appendChild(header);
+  card.appendChild(tagContainer);
+
+  // 📖 詳細を見るクリック
+  card.addEventListener("click", () => showDetail(story, index));
+
+  storyList.appendChild(card);
+});
+
 }
 
 function renderTagList(storyData) {
