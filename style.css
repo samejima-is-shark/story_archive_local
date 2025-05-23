@@ -184,6 +184,15 @@ i {
   margin-top:0.5rem;
 }
 
+#storyDetail {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+#storyDetail.hidden {
+  opacity: 0;
+}
+
 @media (max-width: 768px) {
 
   .story-card {
