@@ -194,6 +194,8 @@ function renderTagList(storyData) {
 function showDetail(story) {
   const index = visibleStories.findIndex(s => s.id === story.id);
 
+  document.getElementById("tagFilter").classList.add("hidden");
+
   storyList.classList.add("hidden");
   storyDetail.classList.remove("hidden");
   storyForm.classList.add("hidden");
@@ -214,6 +216,9 @@ function showDetail(story) {
   document.getElementById("closeDetailBtn").addEventListener("click", () => {
     storyDetail.classList.add("hidden");
     storyList.classList.remove("hidden");
+    storyForm.classList.remove("hidden");
+
+    document.getElementById("tagList").classList.remove("hidden");
     window.scrollTo({ top: lastScrollY, behavior: "auto" });
   });
 
@@ -226,7 +231,6 @@ function showDetail(story) {
 if (index < stories.length - 1) {
   document.getElementById("nextStoryBtn").addEventListener("click", () => {
     storyDetail.classList.add("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
       showDetail(visibleStories[index + 1]);
     }, 0);
