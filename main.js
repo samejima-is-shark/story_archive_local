@@ -295,6 +295,7 @@ function toggleSortOrder() {
 
 // --- 年表表示 ---
 function renderTimelineView(filterTag = null) {
+  visibleStories = [];
   const grouped = {};
 
   stories.forEach((story, index) => {
@@ -328,7 +329,6 @@ function renderTimelineView(filterTag = null) {
     });
 
     grouped[date].forEach(({ story, index }) => {
-      visibleStories.push(story);
 
       const card = document.createElement("div");
       card.className = "story-card";
@@ -347,8 +347,10 @@ function renderTimelineView(filterTag = null) {
 
       card.addEventListener("click", () => {
         lastScrollY = window.scrollY;
-        showDetail(story);
+        showDetail(story, visibleStories.length);
       });
+
+      visibleStories.push(story);
 
       section.appendChild(card);
     });
