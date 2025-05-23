@@ -214,7 +214,6 @@ function showDetail(story) {
   document.getElementById("closeDetailBtn").addEventListener("click", () => {
     storyDetail.classList.add("hidden");
     storyList.classList.remove("hidden");
-    storyForm.classList.remove("hidden");
 
     window.scrollTo({ top: lastScrollY, behavior: "auto" });
   });
