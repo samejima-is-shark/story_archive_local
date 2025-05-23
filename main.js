@@ -152,11 +152,6 @@ function renderStories(filterTag = null) {
 }
 
 function renderTagList(storyData) {
-
-  const wasHidden = tagFilter.classList.contains("hidden");  // ⭐️ 追加
-  tagFilter.innerHTML = "";  // リセットだけして…
-  if (wasHidden) tagFilter.classList.add("hidden");  // ⭐️ 状態を戻す
-
   const allTags = new Set();
   storyData.forEach(story => story.tags.forEach(tag => allTags.add(tag)));
 
