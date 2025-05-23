@@ -218,7 +218,7 @@ function showDetail(story) {
     storyList.classList.remove("hidden");
     storyForm.classList.remove("hidden");
 
-    document.getElementById("tagList").classList.remove("hidden");
+    document.getElementById("tagFilter").classList.remove("hidden");
     window.scrollTo({ top: lastScrollY, behavior: "auto" });
   });
 
