@@ -93,8 +93,8 @@ function formatContent(content) {
 
 function renderStories(filterTag = null) {
   currentFilter = filterTag;
-  visibleStories = filtered;
   let filtered = [...stories];
+  visibleStories = filtered;
   
 
   if (showSecret) {
