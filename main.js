@@ -194,8 +194,6 @@ function renderTagList(storyData) {
 function showDetail(story) {
   const index = visibleStories.findIndex(s => s.id === story.id);
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  
   storyList.classList.add("hidden");
   storyDetail.classList.remove("hidden");
   storyForm.classList.add("hidden");
@@ -231,7 +229,7 @@ if (index < stories.length - 1) {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
       showDetail(visibleStories[index + 1]);
-    }, 300);
+    }, 0);
   });
 }
 }
