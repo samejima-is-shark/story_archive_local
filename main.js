@@ -194,6 +194,8 @@ function renderTagList(storyData) {
 function showDetail(story) {
   const index = visibleStories.findIndex(s => s.id === story.id);
 
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  
   storyList.classList.add("hidden");
   storyDetail.classList.remove("hidden");
   storyForm.classList.add("hidden");
@@ -226,10 +228,10 @@ function showDetail(story) {
 if (index < stories.length - 1) {
   document.getElementById("nextStoryBtn").addEventListener("click", () => {
     storyDetail.classList.add("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => {
       showDetail(visibleStories[index + 1]);
-    }, 0);
-    window.scrollTo({ top: lastScrollY, behavior: "auto" });
+    }, 300);
   });
 }
 }
