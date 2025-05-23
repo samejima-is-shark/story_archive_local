@@ -94,8 +94,6 @@ function formatContent(content) {
 function renderStories(filterTag = null) {
   currentFilter = filterTag;
   let filtered = [...stories];
-  visibleStories = filtered;
-  
 
   if (showSecret) {
     filtered = filtered.filter(s => s.tags.includes("secret"));
@@ -116,6 +114,8 @@ function renderStories(filterTag = null) {
   });
 
   renderTagList(stories);
+
+  visibleStories = filtered;
 
   const sortBtn = document.getElementById("sortToggleBtn");
   if (sortBtn) {
@@ -191,7 +191,9 @@ function renderTagList(storyData) {
   }
 }
 
-function showDetail(story, index) {
+function showDetail(story) {
+  const index = visibleStories.findIndex(s => s.id === story.id);
+
   storyList.classList.add("hidden");
   storyDetail.classList.remove("hidden");
   storyForm.classList.add("hidden");
@@ -223,11 +225,11 @@ function showDetail(story, index) {
 
 if (index < stories.length - 1) {
   document.getElementById("nextStoryBtn").addEventListener("click", () => {
-    // 一度非表示にしてから次を表示 → スクロールが効くように
     storyDetail.classList.add("hidden");
     setTimeout(() => {
       showDetail(visibleStories[index + 1]);
     }, 0);
+    window.scrollTo({ top: lastScrollY, behavior: "auto" });
   });
 }
 }
