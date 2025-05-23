@@ -198,7 +198,7 @@ function showDetail(story) {
   storyDetail.classList.remove("hidden");
   storyForm.classList.add("hidden");
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  //window.scrollTo({ top: 0, behavior: "smooth" });
 
   storyDetail.innerHTML = `
     <h2>${story.title}</h2>
@@ -210,6 +210,11 @@ function showDetail(story) {
       ${index < stories.length - 1 ? '<button id="nextStoryBtn">次へ <i class="fa-solid fa-chevron-right"></i></button>' : ''}
     </div>
   `;
+
+  const h2 = storyDetail.querySelector("h2");
+    if (h2) {
+      h2.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
   document.getElementById("closeDetailBtn").addEventListener("click", () => {
     storyDetail.classList.add("hidden");
