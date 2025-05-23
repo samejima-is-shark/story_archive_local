@@ -11,6 +11,7 @@ let showSecret = false;
 let sortOrder = "desc";
 let currentView = "list";
 let lastScrollY = 0;
+let visibleStories = [];
 
 // --- 初期ロード ---
 window.addEventListener("DOMContentLoaded", () => {
@@ -92,7 +93,9 @@ function formatContent(content) {
 
 function renderStories(filterTag = null) {
   currentFilter = filterTag;
+  visibleStories = filtered;
   let filtered = [...stories];
+  
 
   if (showSecret) {
     filtered = filtered.filter(s => s.tags.includes("secret"));
@@ -214,7 +217,7 @@ function showDetail(story, index) {
 
   if (index > 0) {
     document.getElementById("prevStoryBtn").addEventListener("click", () => {
-      showDetail(stories[index - 1], index - 1);
+      showDetail(visibleStories[index - 1]);
     });
   }
 
@@ -223,7 +226,7 @@ if (index < stories.length - 1) {
     // 一度非表示にしてから次を表示 → スクロールが効くように
     storyDetail.classList.add("hidden");
     setTimeout(() => {
-      showDetail(stories[index + 1], index + 1);
+      showDetail(visibleStories[index + 1]);
     }, 0);
   });
 }
@@ -325,6 +328,8 @@ function renderTimelineView(filterTag = null) {
     });
 
     grouped[date].forEach(({ story, index }) => {
+      visibleStories.push(story);
+
       const card = document.createElement("div");
       card.className = "story-card";
 
@@ -342,7 +347,7 @@ function renderTimelineView(filterTag = null) {
 
       card.addEventListener("click", () => {
         lastScrollY = window.scrollY;
-        showDetail(story, index);
+        showDetail(story);
       });
 
       section.appendChild(card);
