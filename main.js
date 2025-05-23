@@ -231,12 +231,9 @@ function showDetail(story) {
 
 if (index < stories.length - 1) {
   document.getElementById("nextStoryBtn").addEventListener("click", () => {
-    storyDetail.classList.add("hidden");
-    setTimeout(() => {
       showDetail(visibleStories[index + 1]);
-    }, 0);
-  });
-}
+    });
+  }
 }
 
 function backToList() {
